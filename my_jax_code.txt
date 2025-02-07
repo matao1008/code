@@ -1,0 +1,841 @@
+<template>
+  <!--登录界面-->
+  <div :class="$style.root">
+    <div :class="$style.header">
+      <div :class="$style.header_left" style="transform: translateX(80px);">
+      </div>
+      <div :class="$style.header_right">
+        <div :class="$style.header_right_childBox">
+          <div></div>
+          <ContactUs :class="$style.header_text">{{ L[form.lang]['联系我们'] }}></ContactUs>
+        </div>
+      </div>
+    </div>
+    <div :class="$style.bodyCenter">
+      <!-- 背景图片 -->
+      <div :class="$style.sideBox">
+        <div :class="$style.sideCurrent">
+          <div class="carousel-container"
+            style=" width: 1000px; height: 535px; transform: translateX(35px) translateY(22px);">
+            <el-carousel trigger="click" height="553px" style="transform: translateY(-43.5px); border-radius: 10px;">
+              <el-carousel-item v-for="(image, index) in images" :key="index" style="border-radius: 10px;">
+                <h3 style="margin-top: 20px;"><img :src="image" :class="$style['carousel-image']"
+                    style=" transition: opacity 0.5s ease-in-out; "></h3>
+              </el-carousel-item>
+            </el-carousel>
+            <!-- 
+            * 底部按钮链接中的图片
+            * 更具底部按钮来进行更换图片 
+            -->
+            <!-- <img src="@/assets/ico_link/freecompress-低空飞行2.png" style="border-radius: 10px;width: 1000px;height: 525px; margin-top: -22px;"> -->
+          </div>
+        </div>
+      </div>
+      <div :class="$style.userBox">
+        <div :class="$style.userParent">
+          <div :class="$style.userBoxBody">
+            <div :class="$style.loginTypeBox">
+              <div :class="$style.loginTypeChildrenBox"
+                :style="{ borderBottomColor: loginType ? '#1BA4E4' : '#EEF2F7', color: loginType ? '#28A5E1' : '#333333' }"
+                @click="() => { loginType = true }">
+                <div :class="$style.loginTypeChildren" style="font-weight: bold;">集团账户
+                </div>
+              </div>
+              <div style="border-right: 5px solid rgb(224, 229, 239);"></div>
+              <div :class="$style.loginTypeChildrenBox"
+                :style="{ borderBottomColor: !loginType ? '#1BA4E4' : '#EEF2F7', color: !loginType ? '#28A5E1' : '#333333' }"
+                @click="() => { loginType = false }">
+                <div :class="$style.loginTypeChildren" style="font-weight: bold;">个人账户</div>
+              </div>
+            </div>
+            <div :class="$style.userInputBox" style="margin-top:30px;transform: translateY(-20px);">
+              <div>
+                <i class="el-icon-user-solid"
+                  style="color:#D6D6D6;font-size:25px;position:absolute;left:10px;top:50%;transform:translateY(-40%)" />
+              </div>
+              <input type="text" :class="$style.userInput" placeholder="请输入账号" v-model="form.userId"
+                style="width:calc(100% - 46px)">
+            </div>
+            <div :class="$style.userInputBox" style="margin-top:-10px; transform: translateY(-10px);">
+              <div :class="$style.userImg" style="height:25px">
+                <i class="el-icon-password"
+                  style="color:#D6D6D6;font-size:25px;position:absolute;left:10px;top:50%;transform:translateY(-50%)" />
+              </div>
+              <input :type="ishidePassword ? 'password' : 'text'" :class="$style.userInput" placeholder="请输入密码"
+                v-model="form.pwd" style="width:calc(100% - 92px)">
+              <div :class="$style.userImg" style="height:11px;cursor: pointer;" @click="togglePassword">
+                <i class="el-icon-view"
+                  style="color:#D6D6D6;font-size:25px;position:absolute;right:10px;top:50%;transform:translateY(-50%)" />
+              </div>
+            </div>
+            <div :class="$style.userInputBox"
+              style="margin-top:-20px;border:none;height:34px; transform: translateY(-20px);">
+              <div @click="demoClick()"
+                style="font-size: 14px;font-family: Microsoft YaHei;font-weight: 400;color: #333333;display:flex;align-items:center;cursor:pointer;">
+                <i class="el-icon-user-solid" style="color:#76D3FF;font-size:20px;margin-right:5px;" />{{
+                  $_L.get('体验账号') }}
+              </div>
+              <div></div>
+              <Checkbox v-model="form.rmb" :label="$_L.get('记住账号')" />
+            </div>
+            <div :class="$style.userInputBox" style="transform: translateY(-30px);">
+              <SwipeCaptcha ref="captcha" v-on:captchaSuccess="v => { form.code = v; submit() }" :ing1="form.ing" />
+            </div>
+            <!-- <div :class="[$style.userInputBox, $style.userLoginButton]" @click="submit">登录</div> -->
+          </div>
+          <div style="border-top: 1px solid rgb(224, 229, 239); display: flex;"></div>
+          <div :class="$style.userBoxFooter">
+            <a href="http://101.133.218.23/update/ClientGPS.exe" :class="$style.userBoxFooterItem"
+              style="color: #5887d3;border-right: 1px solid rgb(224, 229, 239); display: flex;align-items: center; justify-content: center;">
+              {{ L[form.lang]['客户端下载'] }}
+            </a>
+            <div :class="$style.userBoxFooterItem"
+              style="border-right: 1px solid rgb(224, 229, 239); display: flex;align-items: center; justify-content: center;">
+              <AppMarket :text="L[form.lang]['APP市场下载']" :lang="form.lang" />
+            </div>
+            <div :class="$style.userBoxFooterItem"
+              style="border-right: 1px solid rgb(224, 229, 239); display: flex;align-items: center; justify-content: center;">
+              <WeChat :text="L[form.lang]['微信公众号']" :lang="form.lang" style="transform: translateX(1px);" />
+            </div>
+            <!-- <a href="http://47.243.35.34/?cmpId=1&url=http%3A%2F%2Fbeidou.hihs.cn%3A9999%2Fgps-web%2F" target="_blank"
+              :class="$style.userBoxFooterItem"
+              style="color: #5887d3;border-right: 1px solid rgb(224, 229, 239); display: flex;align-items: center; justify-content: center;">二次开发
+              {{ L[form.lang]['二次开发'] }}
+            </a> -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div>
+        <div :class="$style.img_stley">
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999//jax/hywl" class="link-button">
+              <img src="@/assets/ico_link/9.png" class="zoomable"
+                style="width: 80px; height: 80px;  margin-left: 25px;">
+            </a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/hywl" class="link" width="950" height="500"
+                style="margin-top: -500%;">货运物流</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/lkyw">
+              <img src="@/assets/ico_link/14.png" class="zoomable"
+                style="width: 80px; height: 80px; margin-left: 25px; "></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/lkyw" class="link">两客一危</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/czwy"><img src="@/assets/ico_link/13.png" class="zoomable"
+                style="width: 80px; height: 80px;  margin-left: 25px;"></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/czwy" class="link">出租网约</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/stzt"><img src="@/assets/ico_link/2.png" class="zoomable"
+                style="width: 80px; height: 80px;   margin-left: 25px;"></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/stzt" class="link">商砼渣土</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/gjxc"><img src="@/assets/ico_link/10.png" class="zoomable"
+                style="width: 80px; height: 80px;  margin-left: 25px;"></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/gjxc" class="link">公交校车</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/cccz"><img src="@/assets/ico_link/12.png" class="zoomable"
+                style="width: 80px; height: 80px;  margin-left: 25px;"></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/cccz" class="link">叉车操作</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/gwyc"><img src="@/assets/ico_link/5.png" class="zoomable"
+                style="width: 80px; height: 80px;    margin-left: 25px;"></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/gwyc" class="link">公务用车</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/gaxf"><img src="@/assets/ico_link/6.png" class="zoomable"
+                style="width: 80px; height: 80px;   margin-left: 25px;"></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/gaxf" class="link">公安消防</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/ccjk"><img src="@/assets/ico_link/15.png" class="zoomable"
+                style="width: 80px; height: 80px;   margin-left: 25px;"></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/ccjk" class="link">冷链仓储</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/spxj"><img src="@/assets/ico_link/1.png" class="zoomable"
+                style="width: 80px; height: 80px;  margin-left: 25px;"></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/spxj" class="link">视频巡检</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://beidou.hihs.cn:9999/jax/dkfx"><img src="@/assets/ico_link/8.png" class="zoomable"
+                style="width: 80px; height: 80px;  margin-left: 25px;"></a>
+            <button>
+              <a href="http://beidou.hihs.cn:9999/jax/dkfx" class="link">低空飞行</a>
+            </button>
+          </div>
+          <div class="image-container">
+            <a href="http://36.103.211.15:8764"><img src="@/assets/ico_link/16.png" class="zoomable"
+                style="width: 80px; height: 80px;  margin-left: 25px;"></a>
+            <button>
+              <a href="http://36.103.211.15:8764" class="link">环卫车辆</a>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div :class="$style.footer">
+      <div :class="$style.aa">
+        {{ L[form.lang]['技术支持'] }}[座机: 0953-2662345;手机: 19995356666] 宁夏聚安星信息服务有限公司版权所有
+        <img src="../src/assets/ico_link/gongan.png" style="width:18px;height:20px; margin-left: -5px;"
+          :class="$style.no">
+      </div>
+    </div>
+  </div>
+</template>
+
+
+<script>
+import crypto from 'crypto';
+import { LoginApp as L } from '@/common/langs.js';
+import { init } from '@/common/animate.js';
+import AppMarket from './login/AppMarket.vue';
+import SwipeCaptcha from '@/components/Captcha/SwipeCaptcha.vue';
+import 'element-ui/lib/theme-chalk/index.css';
+import { Carousel, CarouselItem } from 'element-ui';
+import WeChat from './login/WeChat.vue';
+import ContactUs from './login/ContactUs.vue';
+import { bind } from 'core-js/core/function';
+
+export default {
+  data() {
+    return {
+      L: L,
+      form: {
+        lang: 'zh_CN',
+        userId: '',
+        pwd: '',
+        rmb: true,
+        ing: false,
+        code: null,
+        das: null,
+      },
+      images: [
+        require('@/assets/ico_link/freecompress-login4.png'),
+        require('@/assets/ico_link/freecompress-login1.png'),
+        require('@/assets/ico_link/freecompress-login2.png'),
+        require('@/assets/ico_link/freecompress-login3.png'),
+
+      ],
+      pwd_view: false,
+      logging: false,
+      loginType: true,
+      ishidePassword: true,
+      canSubmit: false,
+      currentSlide: 0,
+      slides: [],
+    };
+  },
+  components: {
+    'el-carousel': Carousel,
+    'el-carousel-item': CarouselItem,
+    AppMarket,
+    ContactUs,
+    WeChat,
+    SwipeCaptcha,
+  },
+  created() {
+    // 清理用到的 session 数据
+    sessionStorage.removeItem("_menuId");
+    sessionStorage.removeItem("_sessionId");
+
+    // 记录账号还原上次登录的账号和密码
+    const form = localStorage.getItem('login.form');
+    if (form) {
+      const decodedForm = JSON.parse(decodeURI(window.atob(form.substr(2))));
+      this.form = { ...this.form, ...decodedForm };
+    }
+  },
+  mounted() {
+    // 将语言放到参数中
+    const params = new URLSearchParams(location.search);
+    const lang = localStorage.getItem('lang');
+    if (!params.has('lang') && lang) {
+      params.append('lang', lang);
+      location.search = params.toString();
+    }
+
+    //页面适配
+    document.body.style.zoom = 1 / window.devicePixelRatio;
+
+    // 获取页面的宽度和高度（这部分逻辑可能需要根据实际需求调整）
+    const WIDTH = document.documentElement.clientWidth;
+    const HEIGHT = document.documentElement.clientHeight;
+    const ctx = document.getElementById('canvas');
+    if (ctx) {
+      const content = ctx.getContext('2d');
+      ctx.width = WIDTH;
+      ctx.height = HEIGHT;
+    }
+    this.initImageContainers();
+  },
+  methods: {
+    das() { },
+    //鼠标经过事件，鼠标移入时，连接文字为black，移出时为#b8b8b8
+    initImageContainers() {
+      const imageContainers = document.querySelectorAll('.image-container');
+      imageContainers.forEach(container => {
+        const links = container.querySelectorAll('a.link');
+        container.addEventListener('mouseenter', () => {
+          links.forEach(link => {
+            link.style.color = 'black';
+          });
+        });
+        container.addEventListener('mouseleave', () => {
+          links.forEach(link => {
+            link.style.color = '#b8b8b8';
+          });
+        });
+      });
+    },
+    togglePassword() {
+      this.ishidePassword = !this.ishidePassword;
+    },
+    submit() {
+      this.$refs.captcha.refresh();
+      this.form.ing = true;
+      if (this.logging) return;
+      const { userId, pwd, code, lang, rmb } = this.form;
+      if (!userId) return $_alert.error(this.L[lang]['请输入账号'], this.$refs.form);
+      if (!pwd) return $_alert.error(this.L[lang]['请输入密码'], this.$refs.form);
+      if (!code) return $_alert.error(this.L[lang]['请拖动滑块验证'], this.$refs.form);
+
+      this.logging = true;
+      const hashedPwd = crypto.createHash('md5').update(pwd).digest('hex');
+      const loginType = this.loginType ? 'user' : 'car';
+
+      $_http.post('api/login.jsp', {
+        password: hashedPwd,
+        userId,
+        loginType,
+        loginWay: 'interface',
+        loginLang: lang,
+      }, true).then(result => {
+        this.logging = false;
+        if (rmb) {
+          localStorage.setItem('login.form', 'sy' + window.btoa(encodeURI(JSON.stringify(this.form))));
+        } else {
+          localStorage.removeItem('login.form');
+        }
+        sessionStorage.setItem('_sessionId', result.sessionId);
+        sessionStorage.setItem('_lang', lang);
+        sessionStorage.setItem('_userName', result.userName);
+        location.href = `${window.$_domain.WEB_PATH}h5/outside?sessionId=${result.sessionId}`;
+      }).catch(err => {
+        this.logging = false;
+        this.$refs.captcha.refresh();
+        if (err.rspDesc) {
+          $_alert.error(err.rspDesc, this.$refs.form);
+        } else {
+          $_alert.error('登录失败，请重试。', this.$refs.form);
+        }
+      });
+    }
+  }
+};
+</script>
+
+
+<style>
+* {
+  box-sizing: border-box;
+  /* -webkit-tap-highlight-color: transparent; */
+}
+
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  color: #232323;
+  font-size: 14px;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  padding: 0px;
+}
+</style>
+
+<style module>
+.link-in-button {
+  text-decoration: none;
+  color: inherit;
+  /* 继承父元素的颜色 */
+  /* 可能需要额外的样式来确保按钮内的链接看起来像一个按钮 */
+}
+
+.root {
+  width: 100%;
+  height: 94.5%;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center center;
+  max-width: 100%;
+  padding: 100vn;
+}
+
+.header {
+  width: 100%;
+  height: 70.3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header_left {
+  width: 200px;
+  height: 55px;
+  margin-left: 60px;
+  background-image: url('../src/assets/ico_link/jax.png');
+  background-position: center center;
+  background-size: 100% 100%;
+}
+
+.header_right {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 170px;
+}
+
+.header_right_childBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header_right_img {
+  width: 33px;
+  height: 33px;
+  background-position: center center;
+  background-size: 100% 100%;
+  margin-right: 15px;
+}
+
+.header_text {
+  font-size: 16px;
+  font-family: 'Microsoft YaHei';
+  font-weight: 400;
+  color: #666666;
+}
+
+.bodyCenter {
+  width: 100%;
+  height: calc(100% - 70.3px);
+  background-image: url('@/assets/ico_link/login.jpg');
+  background-position: center center;
+  background-size: cover;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -7px;
+  border: 1px solid black;
+
+  @media screen and (max-width: 1024px) {
+    .bodyCenter {
+      margin-top: -7px;
+    }
+  }
+
+  @media screen and (max-width: 576px) {
+    /* 针对小屏幕手机的样式 */
+  }
+
+  @media screen and (min-width: 1200px) {
+    /* 针对大屏幕桌面设备的样式 */
+  }
+
+}
+
+.sideBox {
+  width: 50%;
+  height: 74.3%;
+  margin-right: 6%;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.sideCurrent {
+  width: 100%;
+  height: 86%;
+  background-position: center center;
+  background-size: cover;
+  /* 添加响应式布局 */
+  /* border: 2px solid black; */
+  transform: translateY(-4.5%);
+}
+
+.userBox {
+  width: 25%;
+  height: 63.74%;
+  min-height: 350px;
+  background: rgba(255, 255, 255, 0.57);
+  border-radius: 8px;
+  display: flex;
+  margin-left: 3%;
+  position: relative;
+  opacity: 1;
+  /* border: 1px solid black; */
+  /* margin-top: -115px; */
+  top: calc(32.5% - 333px);
+  left: calc(15 - 200px);
+  transform: translateX(5px);
+
+}
+
+.loginTypeChildrenBox {
+  width: 50%;
+  height: 100%;
+  box-sizing: border-box;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loginTypeBox {
+  width: 300px;
+  height: 104px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+}
+
+.userParent {
+  width: 100%;
+  height: 100%;
+  /* background: #FFFFFF;
+    box-shadow: 0px 6px 41px 5px rgba(5,98,136,0.15);
+    border-radius: 6px; */
+  margin: auto;
+  padding: 0 11px 13px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  /* background-image: url('@/assets/login/loginInputBg.png'); */
+  background-position: center center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  /* margin-top: -11; */
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+
+}
+
+.userBoxBg {
+  width: calc(100% - 46px);
+  height: calc(100% - 36px);
+  position: absolute;
+  left: 2px;
+  top: 18px;
+  background-color: #1BA4E4;
+  border-radius: 10px;
+}
+
+.userBoxBody {
+  width: 100%;
+  padding: 0 5.5%;
+  height: 83.1%;
+  margin-top: 10px;
+  /* border-bottom: 1px solid #f5f5f6; */
+  background: #FFFFFF;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+
+}
+
+.userBoxFooter {
+  width: 100%;
+  height: 16.7%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #FFFFFF;
+}
+
+.userBoxFooterItem {
+  width: 50%;
+  height: 49px;
+  /* border-right: 1px solid #e0dddd; */
+  box-sizing: border-box;
+  font-size: 16px;
+  font-family: 'Microsoft YaHei';
+  font-weight: 400;
+  color: #5887d3;
+  text-align: center;
+  line-height: 49px;
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+
+}
+
+.loginTypeUser {
+  position: absolute;
+  top: 45px;
+  left: calc(25% - 50px);
+  font-size: 22px;
+  font-family: 'Adobe Heiti Std';
+  font-weight: normal;
+  color: #011A47;
+  line-height: 22px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.loginTypeCar {
+  position: absolute;
+  top: 45px;
+  right: calc(25% - 50px);
+  font-size: 22px;
+  font-family: Adobe Heiti Std;
+  font-weight: normal;
+  color: #FEFEFE;
+  line-height: 22px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.userInputBox {
+  /* width: 79%;
+  height: 8.7%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  margin: 0 auto;
+  position: relative;
+  border: #b8b8b8 solid 1px; */
+  width: 340px;
+  height: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #E0E5EF;
+  box-sizing: border-box;
+  margin: 0 auto;
+  position: relative;
+}
+
+.userImg {
+  width: 18px;
+  height: 20px;
+  margin: 14px;
+  background-image: url('@/assets/loginCommon/password.png');
+  background-position: center center;
+  background-size: 100% 100%;
+}
+
+input::-webkit-input-placeholder {
+  font-size: 16px;
+  font-family: 'Microsoft YaHei';
+  font-weight: 400;
+  color: #D0D0D0;
+}
+
+.userInput {
+  height: 100%;
+  border: none;
+  outline: none;
+}
+
+.userLoginButton {
+  font-size: 22px;
+  justify-content: center;
+  align-items: flex-start;
+  font-weight: 400;
+  font-family: 'Microsoft YaHei';
+  line-height: 41px;
+  color: #FFFFFF;
+  cursor: pointer;
+  margin-top: 9.3%;
+  width: 53.8%;
+  height: 13.3%;
+  background-image: url('@/assets/login/loginSign.png');
+  background-position: center center;
+  background-size: 100% 100%;
+  border-bottom: none;
+}
+
+.footer {
+  position: absolute;
+  bottom: 36px;
+  left: calc(50% - 289px);
+  width: 578px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer_text {
+  font-size: 14px;
+  font-family: 'Microsoft YaHei';
+  font-weight: 400;
+  color: #FFFFFF;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  letter-spacing: 1px;
+}
+
+/* 调整界面样式 */
+
+.aa {
+  color: black;
+  transform: translateY(20px);
+}
+
+a {
+  text-decoration: none;
+}
+
+a:link,
+a.link {
+  color: #b8b8b8;
+}
+
+a:visited,
+a.link:visited {
+  color: #b8b8b8;
+}
+
+a:hover,
+a.link:hover {
+  color: black;
+}
+
+.test {
+  position: absolute;
+  bottom: 15%;
+  left: calc(30% - 400px);
+  width: 600px;
+  display: flex;
+  align-items: center;
+  height: 35px;
+  font-weight: bold;
+  gap: 7px;
+  transform: translateY(35px);
+}
+
+.img_stley {
+  display: flex;
+  transform: translateY(-155px);
+  margin: 5px 170px;
+}
+
+.img_stley img {
+  transition: opacity 0.5s ease-out;
+  opacity: 0.8;
+}
+
+.img_stley img:hover {
+  transform: scale(1.2);
+  opacity: 1;
+}
+
+button {
+  align-items: center;
+  width: 130px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  background: none;
+  text-align: center;
+  font-weight: bold;
+  margin-right: 6px;
+  margin-top: -5px;
+}
+
+.image-container {
+  display: inline-block;
+  margin: 10px;
+}
+
+img.zoomable {
+  width: 60%;
+}
+
+.no {
+  transform: translateX(8px) translateY(4px);
+}
+
+.el-carousel__item {
+  transition: transform 0.5s ease-in-out;
+}
+
+.el-carousel__item h3 {
+  color: #475669;
+  font-size: 14px;
+  opacity: 0.75;
+  line-height: 150px;
+  margin: 0;
+
+  transition: transform 0.5s ease-in-out;
+}
+
+.el-carousel__item:nth-child(2n) {
+  background-color: #99a9bf;
+  transition: transform 0.5s ease-in-out;
+}
+
+.el-carousel__item:nth-child(2n+1) {
+  background-color: #d3dce6;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-image {
+  position: absolute;
+  width: 100%;
+  height: 525px;
+  object-fit: cover;
+  border-radius: 8px;
+
+
+}
+
+.carousel-container {
+  transition: opacity 5s ease-in-out;
+}
+</style>
